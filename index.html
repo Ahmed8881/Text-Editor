@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <nav></nav>
+    <div class="flex justify-between items-center">
+        <h1 class="text-4xl font-bold mb-6 text-center text-[#1DBFCC]">My Editor</h1>
+       
+    </div>
+
+ 
+
+    <div class="options flex flex-wrap gap-4 mb-6">
+        <button id="bold" class="option-button" onclick="onFormatButtonClick(event, 'bold')">
+            <i class="fas fa-bold"></i>
+        </button>
+        <button id="italic" class="option-button" onclick="onFormatButtonClick(event, 'italic')">
+            <i class="fas fa-italic"></i>
+        </button>
+        <button id="underline" class="option-button" onclick="onFormatButtonClick(event, 'underline')">
+            <i class="fas fa-underline"></i>
+        </button>
+        <button id="strikethrough" class="option-button" onclick="onFormatButtonClick(event, 'strikethrough')">
+            <i class="fas fa-strikethrough"></i>
+        </button>
+        <button id="superscript" class="option-button" onclick="onFormatButtonClick(event, 'superscript')">
+            <i class="fas fa-superscript"></i>
+        </button>
+        <button id="subscript" class="option-button" onclick="onFormatButtonClick(event, 'subscript')">
+            <i class="fas fa-subscript"></i>
+        </button>
+        <button id="undo" class="option-button" onclick="onFormatButtonClick(event, 'undo')">
+            <i class="fas fa-undo"></i>
+        </button>
+        <button id="redo" class="option-button" onclick="onFormatButtonClick(event, 'redo')">
+            <i class="fas fa-redo"></i>
+        </button>
+        <button id="justifyLeft" class="option-button" onclick="onFormatButtonClick(event, 'justifyLeft')">
+            <i class="fas fa-align-left"></i>
+        </button>
+        <button id="justifyCenter" class="option-button" onclick="onFormatButtonClick(event, 'justifyCenter')">
+            <i class="fas fa-align-center"></i>
+        </button>
+        <button id="justifyRight" class="option-button" onclick="onFormatButtonClick(event, 'justifyRight')">
+            <i class="fas fa-align-right"></i>
+        </button>
+        <button id="justifyFull" class="option-button" onclick="onFormatButtonClick(event, 'justifyFull')">
+            <i class="fas fa-align-justify"></i>
+        </button>
+        <button id="indent" class="option-button" onclick="onFormatButtonClick(event, 'indent')">
+            <i class="fas fa-indent"></i>
+        </button>
+        <button id="outdent" class="option-button" onclick="onFormatButtonClick(event, 'outdent')">
+            <i class="fas fa-outdent"></i>
+        </button>
+        <select id="fontSize" class="option-button" onchange="modifyText('fontSize', this.value)">
+            <option value="1">Size 1</option>
+            <option value="2">Size 2</option>
+            <option value="3" selected>Size 3</option>
+            <option value="4">Size 4</option>
+            <option value="5">Size 5</option>
+            <option value="6">Size 6</option>
+        </select>
+        <select id="fontName" class="option-button" onchange="modifyText('fontName', this.value)">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="cursive">Cursive</option>
+        </select>
+    </div>
+
+    <div id="editor" contenteditable="true" class=" border border-gray-300 p-4 rounded-lg h-full overflow-y-auto bg-white outline-none editor">
+        <!-- Your editable content goes here -->
+    </div>
+
+  
+
+    <script src="script.js"></script>
+</body>
+</html>
