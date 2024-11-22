@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "tailwindcss": "^3.4.15"
+  },
+  "scripts": {
+    "build:css": "tailwindcss build src/styles.css -o public/styles.css"
+  },
+  "dependencies": {
+    "docx": "^9.0.3"
+  }
+}

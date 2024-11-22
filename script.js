@@ -1,9 +1,7 @@
+import { Document, Packer, Paragraph, TextRun } from "https://cdn.jsdelivr.net/npm/docx@7.1.0
+import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js";
+
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('editorForm');
-    const category = document.getElementById('category');
-    const title = document.getElementById('title');
-    const categoryError = document.getElementById('categoryError');
-    const titleError = document.getElementById('titleError');
     const editor = document.getElementById('editor');
 
     function modifyText(command, value = null) {
@@ -16,28 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveAndClose() {
-        if (!category.value) {
-            categoryError.style.display = 'block';
-        } else {
-            categoryError.style.display = 'none';
-        }
-
-        if (!title.value) {
-            titleError.style.display = 'block';
-        } else {
-            titleError.style.display = 'none';
-        }
-
-        if (category.value && title.value) {
-            saveData();
-            alert('Data saved and dialog closed');
-        }
-    }
-
-    function saveData() {
+        debugger;
         const content = editor.innerHTML;
         const inlineStyledContent = convertToInlineStyles(content);
-        console.log('Saved content with inline styles:', inlineStyledContent);
+        saveAsDocx(inlineStyledContent);
     }
 
     function convertToInlineStyles(html) {
@@ -56,49 +36,62 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < computedStyle.length; i++) {
                 const key = computedStyle[i];
                 if (styleWhitelist.includes(key)) {
-                    styleString += `${key}: ${computedStyle.getPropertyValue(key)}; `;
+                    styleString += `${key}:${computedStyle.getPropertyValue(key)};`;
                 }
             }
-            if (element.tagName.toLowerCase() === 'font') {
-                const size = element.getAttribute('size');
-                if (size) {
-                    styleString += `font-size: ${convertFontSize(size)}; `;
-                }
-                const face = element.getAttribute('face');
-                if (face) {
-                    styleString += `font-family: ${face}; `;
-                }
-                element.removeAttribute('size');
-                element.removeAttribute('face');
-                const spanElement = document.createElement('span');
-                spanElement.innerHTML = element.innerHTML;
-                spanElement.setAttribute('style', styleString);
-                element.replaceWith(spanElement);
-            } else if (styleString.trim()) {
-                element.setAttribute('style', styleString);
-            }
+            element.setAttribute('style', styleString);
         });
-
-        if (div.childNodes.length === 1 && div.firstChild.nodeType === Node.TEXT_NODE) {
-            const wrapperDiv = document.createElement('div');
-            wrapperDiv.innerHTML = div.innerHTML;
-            return wrapperDiv.outerHTML;
-        }
 
         return div.innerHTML;
     }
 
+    function saveAsDocx(content) {
+        debugger;
+        const doc = new Document();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+
+        const paragraphs = [];
+        tempDiv.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                paragraphs.push(new Paragraph({ children: [new TextRun(node.textContent)] }));
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const style = window.getComputedStyle(node);
+                const textRun = new TextRun({
+                    text: node.textContent,
+                    bold: style.fontWeight === "bold" || parseInt(style.fontWeight) > 500,
+                    italic: style.fontStyle === "italic",
+                    underline: style.textDecoration.includes("underline"),
+                    strike: style.textDecoration.includes("line-through"),
+                    color: style.color.replace("rgb", "").replace(/[^\d,]/g, ""),
+                    size: convertFontSize(style.fontSize),
+                    font: style.fontFamily.replace(/['"]/g, '')
+                });
+                paragraphs.push(new Paragraph({ children: [textRun] }));
+            }
+        });
+
+        doc.addSection({
+            properties: {},
+            children: paragraphs,
+        });
+
+        Packer.toBlob(doc).then(blob => {
+            saveAs(blob, "document.docx");
+        });
+    }
+
     function convertFontSize(size) {
         const sizeMap = {
-            '1': '8px',
-            '2': '10px',
-            '3': '12px',
-            '4': '14px',
-            '5': '18px',
-            '6': '24px',
-            '7': '36px'
+            '8px': 16,
+            '10px': 20,
+            '12px': 24,
+            '14px': 28,
+            '18px': 36,
+            '24px': 48,
+            '36px': 72
         };
-        return sizeMap[size] || size;
+        return sizeMap[size] || 24; // Default to 12pt font size
     }
 
     window.onFormatButtonClick = onFormatButtonClick;

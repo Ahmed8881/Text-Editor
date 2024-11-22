@@ -6,11 +6,26 @@
     <title>Text Editor</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="public/styles.css">
+    <style>
+        .options{
+        justify-content: center;
+        }
+        .editor{
+            width: 55rem;
+    height: 30rem;
+    margin: 3rem;
+    padding: 1rem;
+    margin: 0px auto;
+        }
+    </style>
 </head>
+
 <body>
-    <nav></nav>
-    <div class="flex justify-between items-center">
-        <h1 class="text-4xl font-bold mb-6 text-center text-[#1DBFCC]">My Editor</h1>
+    <div class="flex justify-center items-center">
+        <h1
+        style="margin-left: 3rem; margin-top: 2rem; margin-bottom: 2rem;"
+         class="text-4xl font-bold ml-[3rem] mb-[3rem] text-center text-[#1DBFCC]">My Editor</h1>
        
     </div>
 
@@ -78,11 +93,115 @@
         </select>
     </div>
 
-    <div id="editor" contenteditable="true" class=" border border-gray-300 p-4 rounded-lg h-full overflow-y-auto bg-white outline-none editor">
+    <div id="editor" contenteditable="true" class=" border border-gray-300 p-[3rem] rounded-lg h-full overflow-y-auto bg-white outline-none editor">
         <!-- Your editable content goes here -->
     </div>
+    <button onclick="saveAndClose()">
+        Save
+    </button>
 
-  
+  <script>
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const editor = document.getElementById('editor');
+    
+        function modifyText(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+    
+        function onFormatButtonClick(event, command) {
+            modifyText(command);
+            event.target.classList.toggle('active');
+        }
+    
+        function saveAndClose() {
+            debugger;
+            const content = editor.innerHTML;
+            const inlineStyledContent = convertToInlineStyles(content);
+            saveAsDocx(inlineStyledContent);
+        }
+    
+        function convertToInlineStyles(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            const elements = div.querySelectorAll('*');
+    
+            const styleWhitelist = [
+                'font-size', 'font-weight', 'font-style', 'text-decoration', 'color', 'background-color',
+                'text-align', 'vertical-align', 'list-style-type', 'margin-left', 'font-family'
+            ];
+    
+            elements.forEach(element => {
+                const computedStyle = window.getComputedStyle(element);
+                let styleString = '';
+                for (let i = 0; i < computedStyle.length; i++) {
+                    const key = computedStyle[i];
+                    if (styleWhitelist.includes(key)) {
+                        styleString += `${key}:${computedStyle.getPropertyValue(key)};`;
+                    }
+                }
+                element.setAttribute('style', styleString);
+            });
+    
+            return div.innerHTML;
+        }
+    
+        function saveAsDocx(content) {
+            debugger;
+            const doc = new Document();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+    
+            const paragraphs = [];
+            tempDiv.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    paragraphs.push(new Paragraph({ children: [new TextRun(node.textContent)] }));
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    const style = window.getComputedStyle(node);
+                    const textRun = new TextRun({
+                        text: node.textContent,
+                        bold: style.fontWeight === "bold" || parseInt(style.fontWeight) > 500,
+                        italic: style.fontStyle === "italic",
+                        underline: style.textDecoration.includes("underline"),
+                        strike: style.textDecoration.includes("line-through"),
+                        color: style.color.replace("rgb", "").replace(/[^\d,]/g, ""),
+                        size: convertFontSize(style.fontSize),
+                        font: style.fontFamily.replace(/['"]/g, '')
+                    });
+                    paragraphs.push(new Paragraph({ children: [textRun] }));
+                }
+            });
+    
+            doc.addSection({
+                properties: {},
+                children: paragraphs,
+            });
+    
+            Packer.toBlob(doc).then(blob => {
+                saveAs(blob, "document.docx");
+            });
+        }
+    
+        function convertFontSize(size) {
+            const sizeMap = {
+                '8px': 16,
+                '10px': 20,
+                '12px': 24,
+                '14px': 28,
+                '18px': 36,
+                '24px': 48,
+                '36px': 72
+            };
+            return sizeMap[size] || 24; // Default to 12pt font size
+        }
+    
+        window.onFormatButtonClick = onFormatButtonClick;
+        window.modifyText = modifyText;
+        window.saveAndClose = saveAndClose;
+    });
+    
+    
+  </script>
 
     <script src="script.js"></script>
 </body>
