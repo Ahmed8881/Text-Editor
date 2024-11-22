@@ -16,11 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveAndClose() {
         debugger;
         const content = editor.innerHTML;
+        debugger
+
         const inlineStyledContent = convertToInlineStyles(content);
         saveAsDocx(inlineStyledContent);
     }
 
     function convertToInlineStyles(html) {
+        debugger
         const div = document.createElement('div');
         div.innerHTML = html;
         const elements = div.querySelectorAll('*');
